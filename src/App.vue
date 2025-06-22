@@ -267,7 +267,21 @@ export default {
     addNewVideo() {
       if (!this.currentTab) return;
 
-      let url = this.newVideoUrl;
+      let url = this.newVideoUrl.trim();
+      // Simple YouTube URL validation
+      const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|live\/)|youtu\.be\/)[\w\-]{11,}/i;
+      if (!youtubeRegex.test(url)) {
+        swal("Invalid URL", "Please enter a valid YouTube video URL.", "error")
+          .then(() => {
+            // Refocus the input after the error popup is closed
+            this.$nextTick(() => {
+              const input = document.getElementById('video-url');
+              if (input) input.focus();
+            });
+          });
+        return;
+      }
+
       let itemText = url.replace('https://youtu.be/', '');
       itemText = itemText.replace('https://www.youtube.com/live/', '');
 
