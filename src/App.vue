@@ -173,18 +173,27 @@ export default {
           this.boards.push({ name });
         }
       });
+
+      // if boards are loaded, set the current tab to the first one
       if (this.boards.length > 0) {
         this.currentTab = this.boards[0].name;
       }
     },
+
+    // Save the order of tabs to a cookie
     saveTabOrder() {
       const order = this.boards.map(b => b.name);
       Cookies.set(TAB_ORDER_COOKIE, JSON.stringify(order), { expires: 10000, path: '/' });
     },
+
+    // Add a new board
+    // If the name is not provided, use the newBoardName data property
     addNewBoard(name, saveState = true) {
       if (typeof name === 'object') {
         name = this.newBoardName;
       }
+
+      // Replace spaces with underscores and trim the name
       name = name.trim().replace(/\s+/g, '_');
       if (this.boards.some(board => board.name === name)) {
         swal("Already Exists", "A tab with this name already exists", "error");
@@ -199,6 +208,9 @@ export default {
       }
       return true;
     },
+
+    // Delete the current board
+    // It will prompt the user for confirmation before deleting
     deleteBoard() {
       if (!this.currentTab) return;
       swal({
@@ -219,9 +231,11 @@ export default {
         }
       });
     },
+
     activateTab(name) {
       this.currentTab = name;
     },
+
     showAddBoardModal() {
       this.boardModal.show();
       this.$nextTick(() => {
@@ -229,9 +243,11 @@ export default {
         if (input) input.focus();
       });
     },
+
     hideBoardModal() {
       this.boardModal.hide();
     },
+
     showAddVideoModal() {
       if (!this.currentTab) {
         swal("Add a Board", "Please add a board first", "error");
@@ -243,9 +259,11 @@ export default {
         if (input) input.focus();
       });
     },
+
     hideVideoModal() {
       this.videoModal.hide();
     },
+
     addNewVideo() {
       if (!this.currentTab) return;
 
@@ -265,6 +283,12 @@ export default {
       this.hideVideoModal();
       this.newVideoUrl = '';
     },
+
+    /**
+     * Exports the current board as a text string.
+     * The format is: "boardName|[card1, card2, ...]"
+     * where each card is saved in JSON format.
+     */
     exportBoard() {
       // Use the same ref logic as addNewVideo
       const refName = 'board_' + this.currentTab;
@@ -275,6 +299,12 @@ export default {
         swal("Export: Copy & paste this text for another person to import", exportText, "success");
       }
     },
+
+    /**
+     * Exports all boards as a single text string.
+     * Each board's name and its cards are concatenated with a pipe '|'.
+     * The cards are saved in JSON format.
+     */
     exportAllBoards() {
       let boardData = this.boards.map(board => {
         const refName = 'board_' + board.name;
@@ -286,6 +316,12 @@ export default {
       }).join('');
       swal("Export: Copy & paste this text for another person to import", boardData, "success");
     },
+
+    /**
+     * Imports a board from a previously exported text string.
+     * The text should be in the format: "boardName|[card1, card2, ...]"
+     * where each card is saved in JSON format.
+     */
     importBoard() {
       swal({
         text: "Paste previously exported text into this box to create a new video board",
@@ -341,9 +377,11 @@ export default {
         });
       });
     },
+
     onTabDragStart(idx) {
       this.draggedTabIndex = idx;
     },
+
     onTabDrop(idx) {
       if (this.draggedTabIndex === null || this.draggedTabIndex === idx) return;
       const moved = this.boards.splice(this.draggedTabIndex, 1)[0];
@@ -352,6 +390,7 @@ export default {
       this.saveTabOrder();
     },
   },
+
   mounted() {
     this.loadTabs();
     this.$nextTick(() => {
@@ -359,6 +398,10 @@ export default {
       this.videoModal = new Modal(this.$refs.videoModal);
     });
   },
+
+
+  // Watch for changes in the current tab
+  // When the tab changes, save the current board's cards to cookies
   watch: {
     currentTab(newVal, oldVal) {
       if (newVal !== oldVal && oldVal) {
