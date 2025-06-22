@@ -116,7 +116,7 @@ export default {
     // This is called whenever a card is added, deleted, or moved.
     saveCards() {
       const jsonPosObj = JSON.stringify(this.cards);
-      Cookies.set('videowall_' + this.name, jsonPosObj, { expires: 400 });
+      Cookies.set('videowall_' + this.name, jsonPosObj, { expires: 10000, path: '/' });
       return jsonPosObj;
     }
   },

@@ -138,15 +138,29 @@ export default {
     };
   },
   methods: {
+
     loadTabs() {
+
+      // Load existing tabs from cookies
+      // Cookies are used to persist the state of the video boards across sessions
       const cookies = Object.keys(Cookies.get());
+
+      // Check if the tab order cookie exists
+      // If it does, parse it to get the order of tabs
       let tabOrder = Cookies.get(TAB_ORDER_COOKIE);
       let tabNames = [];
       if (tabOrder) {
         tabNames = JSON.parse(tabOrder);
       } else {
         // fallback: get all tab names from cookies
-        tabNames = cookies.filter(cookie => cookie.startsWith('videowall_')).map(cookie => cookie.split(/_(.*)/s)[1]);
+        // This will get all cookies that start with 'videowall_'
+        // and extract the names after the prefix
+        // This is useful for legacy support or if the tab order cookie is not set
+        // It will sort the tab names alphabetically
+        tabNames = cookies
+          .filter(cookie => cookie.startsWith('videowall_'))
+          .map(cookie => cookie.split(/_(.*)/s)[1])
+          .sort();
       }
       this.boards = [];
       tabNames.forEach(name => {
@@ -160,7 +174,7 @@ export default {
     },
     saveTabOrder() {
       const order = this.boards.map(b => b.name);
-      Cookies.set(TAB_ORDER_COOKIE, JSON.stringify(order), { expires: 400 });
+      Cookies.set(TAB_ORDER_COOKIE, JSON.stringify(order), { expires: 10000, path: '/' });
     },
     addNewBoard(name, saveState = true) {
       if (typeof name === 'object') {
@@ -193,7 +207,7 @@ export default {
           const index = this.boards.findIndex(board => board.name === this.currentTab);
           if (index !== -1) {
             this.boards.splice(index, 1);
-            Cookies.remove('videowall_' + this.currentTab);
+            Cookies.remove('videowall_' + this.currentTab, { path: '/' });
             this.saveTabOrder();
             this.currentTab = this.boards[0]?.name || '';
           }
