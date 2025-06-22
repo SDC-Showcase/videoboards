@@ -65,22 +65,35 @@ export default {
       this.draggedIndex = null;
       this.saveCards();
     },
+
+    // This method, onDragEnter, is called when a dragged card
+    // enters the area of another card during a drag-and-drop operation.
+    // hoverIdx - is the index of the card that is being hovered over.
     onDragEnter(hoverIdx) {
       if (
-        this.draggedIndex === null ||
-        this.draggedIndex === hoverIdx ||
-        hoverIdx < 0 ||
-        hoverIdx >= this.cards.length
+        this.draggedIndex === null ||       // If no card is being dragged
+        this.draggedIndex === hoverIdx ||   // If the dragged card is over the same card
+        hoverIdx < 0 ||                     // If the hover index is out of bounds
+        hoverIdx >= this.cards.length       // If the hover index exceeds the number of cards
       ) return;
-      // Prevent duplicate moves
+
+      // Move the dragged card to the new position
+      // This is done by removing the card from its original position
       const moved = this.cards.splice(this.draggedIndex, 1)[0];
-      this.cards.splice(hoverIdx, 0, moved);
-      this.draggedIndex = hoverIdx;
+      this.cards.splice(hoverIdx, 0, moved);  // Insert it at the new position
+      this.draggedIndex = hoverIdx;           // Update the dragged index to the new position
     },
+
+
+    // This method is called when the drag-and-drop operation is completed.
+    // It resets the dragged index and saves the current state of the cards.
     onDrop() {
       this.draggedIndex = null;
       this.saveCards();
     },
+
+    // Generates a new GUID for each card
+    // This is used to uniquely identify each card in the video wall.
     newGuid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
         function(c) {
@@ -89,18 +102,27 @@ export default {
           return v.toString(16);
         }).toUpperCase();
     },
+
+    // Loads the cards from cookies when the component is mounted.
+    // This allows the video wall to persist its state across page reloads.
     loadCards() {
       const cards = Cookies.get('videowall_' + this.name);
       if (cards) {
         this.cards = JSON.parse(cards);
       }
     },
+
+    // Saves the current state of the cards to cookies.
+    // This is called whenever a card is added, deleted, or moved.
     saveCards() {
       const jsonPosObj = JSON.stringify(this.cards);
       Cookies.set('videowall_' + this.name, jsonPosObj, { expires: 400 });
       return jsonPosObj;
     }
   },
+
+  // When the component is mounted, it loads the cards from cookies.
+  // This ensures that the video wall displays the previously saved state.
   mounted() {
     this.loadCards();
   }
