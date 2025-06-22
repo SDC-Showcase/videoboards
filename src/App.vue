@@ -37,7 +37,7 @@
       <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
           <button
-            v-for="board in boards"
+            v-for="(board, idx) in boards"
             :key="board.name"
             class="nav-link"
             :class="{ active: currentTab === board.name }"
@@ -48,6 +48,10 @@
             type="button"
             role="tab"
             @click="activateTab(board.name)"
+            draggable="true"
+            @dragstart="onTabDragStart(idx)"
+            @dragover.prevent
+            @drop="onTabDrop(idx)"
           >{{ board.name }}</button>
         </div>
       </nav>
@@ -134,7 +138,8 @@ export default {
       newBoardName: '',
       newVideoUrl: '',
       boardModal: null,
-      videoModal: null
+      videoModal: null,
+      draggedTabIndex: null,
     };
   },
   methods: {
@@ -335,6 +340,16 @@ export default {
           });
         });
       });
+    },
+    onTabDragStart(idx) {
+      this.draggedTabIndex = idx;
+    },
+    onTabDrop(idx) {
+      if (this.draggedTabIndex === null || this.draggedTabIndex === idx) return;
+      const moved = this.boards.splice(this.draggedTabIndex, 1)[0];
+      this.boards.splice(idx, 0, moved);
+      this.draggedTabIndex = null;
+      this.saveTabOrder();
     },
   },
   mounted() {
