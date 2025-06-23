@@ -37,7 +37,17 @@ export default {
   emits: ['delete', 'dragstart', 'dragend', 'dragenter'],
   methods: {
     onDelete() {
-      this.$emit('delete', this.id);
+      swal({
+        title: "Are you sure?",
+        text: "Delete this video card?",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          this.$emit('delete', this.id);
+        }
+    });
     },
     onDragStart(e) {
       setTimeout(() => e.target.classList.add("dragging"), 0);
