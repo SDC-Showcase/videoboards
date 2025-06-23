@@ -1,15 +1,17 @@
 <template>
   <div class="container-fluid">
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Videoboards</a>
+      <div class="container-fluid d-flex align-items-end">
+        <a class="navbar-brand app-logo" href="#">
+          <span class="logo-highlight">Video</span>boards <span class="logo-version">V1.0</span>
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav"
             aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
+        <div class="collapse navbar-collapse ms-auto" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
             <li class="nav-item">
               <a class="nav-link active" @click.prevent="showAddBoardModal" href="#">Add Board</a>
             </li>
@@ -443,6 +445,13 @@ export default {
   cursor: pointer;
 }
 
+.nav-link:hover, .nav-link:focus {
+  color: #2f4282 !important;      /* Orange highlight on hover */
+  text-decoration: underline;     /* Underline for emphasis */
+  background: none !important;    /* Remove any background */
+  transition: color 0.2s;
+}
+
 .tab-content {
   border-top: 1px solid #dee2e6;
   padding: 1rem;
@@ -460,5 +469,36 @@ export default {
 
 .btn-close {
   padding: 0.5rem 1rem;
+}
+
+.app-logo {
+  font-family: 'Segoe UI', 'Arial Rounded MT Bold', Arial, sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #2a5298;
+  background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 1px 2px 8px rgba(42,82,152,0.10);
+  user-select: none;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 2px; /* tweak as needed for perfect baseline alignment */
+  margin-bottom: 0;
+}
+
+.logo-highlight {
+  color: #ff9800;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+  letter-spacing: 2px;
+}
+
+.logo-version {
+  color: #43e97b;
+  font-size: 1.1rem;
+  font-family: monospace;
+  margin-left: 0.5em;
+  margin-bottom: 0.25em;
 }
 </style>
