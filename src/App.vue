@@ -1,9 +1,9 @@
 <template>
   <div class="container-fluid">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+    <nav class="navbar navbar-expand-xxl navbar-light bg-light mb-3">
       <div class="container-fluid d-flex align-items-end">
         <a class="navbar-brand app-logo" href="#">
-          <span class="logo-highlight">Video</span>boards <span class="logo-version">V1.0</span>
+          <span class="logo-highlight">Videoboards</span><span class="logo-version">V1.01</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav"
@@ -500,5 +500,21 @@ export default {
   font-family: monospace;
   margin-left: 0.5em;
   margin-bottom: 0.25em;
+}
+
+@media (max-width: 440px) {
+  .app-logo {
+    font-size: 1.4rem;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-bottom: 0;
+  }
+  .logo-version {
+    display: block;
+    margin-left: 0;
+    margin-top: 0.2em;
+    margin-bottom: 0;
+    font-size: 1rem;
+  }
 }
 </style>
