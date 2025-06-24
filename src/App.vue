@@ -479,6 +479,7 @@ export default {
   color: #2a5298;
   background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 1px 2px 8px rgba(42,82,152,0.10);
   user-select: none;
