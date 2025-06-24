@@ -6,4 +6,7 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
+  test: {
+    environment: 'jsdom',
+  },
 })
