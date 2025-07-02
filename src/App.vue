@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-xxl navbar-light bg-light mb-3">
       <div class="container-fluid d-flex align-items-end">
         <a class="navbar-brand app-logo" href="#">
-          <span class="logo-highlight">Videoboards</span><span class="logo-version">V1.01</span>
+          <span class="logo-highlight">Videoboards</span><span class="logo-version">V2.00</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav"
@@ -122,7 +122,6 @@
 
 <script>
 import { Modal } from 'bootstrap';
-import Cookies from 'js-cookie';
 import swal from 'sweetalert';
 import VideoBoard from './components/VideoBoard.vue';
 
@@ -150,11 +149,11 @@ export default {
 
       // Load existing tabs from cookies
       // Cookies are used to persist the state of the video boards across sessions
-      const cookies = Object.keys(Cookies.get());
+      const cookies = Object.keys(localStorage);
 
       // Check if the tab order cookie exists
       // If it does, parse it to get the order of tabs
-      let tabOrder = Cookies.get(TAB_ORDER_COOKIE);
+      let tabOrder = localStorage.getItem(TAB_ORDER_COOKIE);
       let tabNames = [];
       if (tabOrder) {
         tabNames = JSON.parse(tabOrder);
@@ -185,7 +184,7 @@ export default {
     // Save the order of tabs to a cookie
     saveTabOrder() {
       const order = this.boards.map(b => b.name);
-      Cookies.set(TAB_ORDER_COOKIE, JSON.stringify(order), { expires: 10000, path: '/' });
+      localStorage.setItem(TAB_ORDER_COOKIE, JSON.stringify(order), { expires: 10000, path: '/' });
     },
 
     // Add a new board
@@ -226,7 +225,7 @@ export default {
           const index = this.boards.findIndex(board => board.name === this.currentTab);
           if (index !== -1) {
             this.boards.splice(index, 1);
-            Cookies.remove('videowall_' + this.currentTab, { path: '/' });
+            localStorage.removeItem('videowall_' + this.currentTab);
             this.saveTabOrder();
             this.currentTab = this.boards[0]?.name || '';
           }

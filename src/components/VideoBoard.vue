@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import Cookies from 'js-cookie';
 import VideoCard from './VideoCard.vue';
 
 export default {
@@ -103,25 +102,25 @@ export default {
         }).toUpperCase();
     },
 
-    // Loads the cards from cookies when the component is mounted.
+    // Loads the cards from localStorage when the component is mounted.
     // This allows the video wall to persist its state across page reloads.
     loadCards() {
-      const cards = Cookies.get('videowall_' + this.name);
+      const cards = localStorage.getItem('videowall_' + this.name);
       if (cards) {
         this.cards = JSON.parse(cards);
       }
     },
 
-    // Saves the current state of the cards to cookies.
+    // Saves the current state of the cards to localStorage.
     // This is called whenever a card is added, deleted, or moved.
     saveCards() {
       const jsonPosObj = JSON.stringify(this.cards);
-      Cookies.set('videowall_' + this.name, jsonPosObj, { expires: 10000, path: '/' });
+      localStorage.setItem('videowall_' + this.name, jsonPosObj);
       return jsonPosObj;
     }
   },
 
-  // When the component is mounted, it loads the cards from cookies.
+  // When the component is mounted, it loads the cards from localStorage.
   // This ensures that the video wall displays the previously saved state.
   mounted() {
     this.loadCards();

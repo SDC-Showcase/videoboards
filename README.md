@@ -1,5 +1,11 @@
 # VideoBoards
 
+
+## Updates
+02-07-25 - V2.00 - Now using localstorage instead of cookies.
+
+
+
 VideoBoards is a web application for creating and managing video walls. It allows you to organize multiple video streams or links into customizable boards, making it easy to display and control several videos at once.
 
 ## Features
