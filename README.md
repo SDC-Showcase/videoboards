@@ -3,6 +3,21 @@
 
 ## Updates
 
+### V2.30 - 2026-01-03
+**Enhanced Tab Navigation**
+- Smart tab ordering - most recently accessed tabs appear first in visible tab list
+- Improved UX - clicking visible tabs activates without reordering
+- Only clicking tabs from "All Boards" dropdown adds them to front of visible list
+- Maintains stable tab positions for better navigation experience
+
+### V2.20 - 2026-01-03
+**Smart Tab Navigation**
+- Hybrid tab navigation system for managing many boards
+- Shows 5 most recently accessed tabs as quick-access buttons
+- "All Boards" dropdown menu provides access to complete board list
+- Recent tabs tracked and persisted across sessions
+- Eliminates tab clutter while maintaining easy access to all boards
+
 ### V2.10 - 2026-01-03
 **Performance & Resource Optimization**
 - Implemented lazy loading for video thumbnails - only active tab loads iframes
@@ -26,6 +41,7 @@ VideoBoards is a web application for creating and managing video walls. It allow
 - Simple drag-and-drop interface
 - Responsive design for various screen sizes
 - Lazy loading thumbnails for optimal performance
+- Smart hybrid tab navigation - recent tabs + dropdown for all boards
 - Tab-based organization with persistent active tab state
 - Import/Export board configurations
 

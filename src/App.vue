@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-xxl navbar-light bg-light mb-3">
       <div class="container-fluid d-flex align-items-end">
         <a class="navbar-brand app-logo" href="#">
-          <span class="logo-highlight">Videoboards</span><span class="logo-version">V2.10</span>
+          <span class="logo-highlight">Videoboards</span><span class="logo-version">V2.30</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav"
@@ -38,8 +38,9 @@
     <div class="row">
       <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <!-- Recent/Visible tabs -->
           <button
-            v-for="(board, idx) in boards"
+            v-for="(board, idx) in visibleTabs"
             :key="board.name"
             class="nav-link"
             :class="{ active: currentTab === board.name }"
@@ -49,12 +50,29 @@
             :data-bs-target="'#panel-' + board.name"
             type="button"
             role="tab"
-            @click="activateTab(board.name)"
+            @click="activateTab(board.name, false)"
             draggable="true"
             @dragstart="onTabDragStart(idx)"
             @dragover.prevent
             @drop="onTabDrop(idx)"
           >{{ board.name }}</button>
+
+          <!-- Dropdown for all tabs -->
+          <div class="nav-item dropdown" v-if="boards.length > 0">
+            <button class="nav-link dropdown-toggle" data-bs-toggle="dropdown" type="button" role="tab">
+              All Boards
+            </button>
+            <ul class="dropdown-menu">
+              <li v-for="board in dropdownTabs" :key="'dropdown-' + board.name">
+                <a
+                  class="dropdown-item"
+                  :class="{ active: currentTab === board.name }"
+                  href="#"
+                  @click.prevent="activateTab(board.name, true)"
+                >{{ board.name }}</a>
+              </li>
+            </ul>
+          </div>
         </div>
       </nav>
 
@@ -121,12 +139,14 @@
 </template>
 
 <script>
-import { Modal } from 'bootstrap';
+import { Modal, Tab } from 'bootstrap';
 import swal from 'sweetalert';
 import VideoBoard from './components/VideoBoard.vue';
 
 const TAB_ORDER_COOKIE = 'videowall_tab_order';
 const ACTIVE_TAB_KEY = 'videowall_active_tab';
+const RECENT_TABS_KEY = 'videowall_recent_tabs';
+const MAX_VISIBLE_TABS = 5;
 
 export default {
   name: 'App',
@@ -137,6 +157,7 @@ export default {
     return {
       currentTab: '',
       boards: [],
+      recentTabs: [],
       newBoardName: '',
       newVideoUrl: '',
       boardModal: null,
@@ -144,7 +165,43 @@ export default {
       draggedTabIndex: null,
     };
   },
+  computed: {
+    visibleTabs() {
+      // Sort boards by their position in recentTabs (most recent first)
+      return this.boards
+        .filter(board => this.recentTabs.includes(board.name))
+        .sort((a, b) => {
+          const indexA = this.recentTabs.indexOf(a.name);
+          const indexB = this.recentTabs.indexOf(b.name);
+          return indexA - indexB;
+        })
+        .slice(0, MAX_VISIBLE_TABS);
+    },
+    dropdownTabs() {
+      return this.boards;
+    }
+  },
   methods: {
+    loadRecentTabs() {
+      const saved = localStorage.getItem(RECENT_TABS_KEY);
+      if (saved) {
+        this.recentTabs = JSON.parse(saved);
+      }
+    },
+
+    saveRecentTabs() {
+      localStorage.setItem(RECENT_TABS_KEY, JSON.stringify(this.recentTabs));
+    },
+
+    addToRecentTabs(tabName) {
+      // Remove if already exists
+      this.recentTabs = this.recentTabs.filter(name => name !== tabName);
+      // Add to front
+      this.recentTabs.unshift(tabName);
+      // Keep only MAX_VISIBLE_TABS + 2 for buffer
+      this.recentTabs = this.recentTabs.slice(0, MAX_VISIBLE_TABS + 2);
+      this.saveRecentTabs();
+    },
 
     loadTabs() {
 
@@ -247,10 +304,40 @@ export default {
       });
     },
 
-    activateTab(name) {
+    activateTab(name, moveToFront = false) {
       this.currentTab = name;
       // Save the active tab to localStorage
       localStorage.setItem(ACTIVE_TAB_KEY, name);
+
+      // Only reorder if clicking from dropdown
+      if (moveToFront) {
+        // Add to recent tabs (this will update visibleTabs)
+        this.addToRecentTabs(name);
+      }
+
+      // Programmatically activate the Bootstrap tab
+      // Need to wait for Vue to update visibleTabs computed property
+      // and then wait again for the DOM to render the new tab button
+      this.$nextTick(() => {
+        this.$nextTick(() => {
+          // Try to find the tab button (it should exist now after adding to recent tabs)
+          const tabButton = document.getElementById('nav-' + name);
+          if (tabButton) {
+            const tab = new Tab(tabButton);
+            tab.show();
+          } else {
+            // Fallback: If button doesn't exist, directly show the panel
+            const panels = document.querySelectorAll('.tab-pane');
+            panels.forEach(panel => {
+              panel.classList.remove('show', 'active');
+            });
+            const targetPanel = document.getElementById('panel-' + name);
+            if (targetPanel) {
+              targetPanel.classList.add('show', 'active');
+            }
+          }
+        });
+      });
     },
 
     showAddBoardModal() {
@@ -424,6 +511,7 @@ export default {
 
   mounted() {
     this.loadTabs();
+    this.loadRecentTabs();
     this.$nextTick(() => {
       this.boardModal = new Modal(this.$refs.boardModal);
       this.videoModal = new Modal(this.$refs.videoModal);
