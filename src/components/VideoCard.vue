@@ -1,10 +1,10 @@
 <template>
-  <div :id="id" :ref="id" class="card draggable" draggable="true" @dragstart="onDragStart" @dragend="onDragEnd" @dragenter="onDragEnter">
-    <span class="delete_icon_span" @click="onDelete">
+  <div :id="id" :ref="id" class="card draggable" draggable="true" @dragstart="onDragStart" @dragend="onDragEnd" @dragenter="onDragEnter" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
+    <span class="delete_icon_span" @click="onDelete" @touchstart.stop>
       <img class="delete_icon" src="/images/delete.svg" alt="delete"/>
     </span>
-    <span class="drag_icon_span">
-      <img class="drag_icon center-block drag_filter" src="/images/drag-svgrepo-com.svg" alt="drag"/>
+    <span class="drag_icon_span" @contextmenu.prevent @touchstart="onDragIconTouchStart" @touchmove.prevent @touchend.prevent>
+      <img class="drag_icon center-block drag_filter" src="/images/drag-svgrepo-com.svg" alt="drag" draggable="false"/>
     </span>
     <div v-if="!isLoaded && shouldLoad" class="video_thumbnail" @click="loadVideo">
       <img v-if="!showFallback" :src="thumbnailUrl" :alt="'Video thumbnail'" class="thumbnail_image" @error="onThumbnailError" />
@@ -63,7 +63,14 @@ export default {
     return {
       isLoaded: false,
       thumbnailQuality: 'maxresdefault',
-      showFallback: false
+      showFallback: false,
+      touchStartY: 0,
+      touchStartX: 0,
+      isDragging: false,
+      touchMoveThreshold: 10,
+      dragClone: null,
+      cardOffsetX: 0,
+      cardOffsetY: 0
     };
   },
   computed: {
@@ -131,6 +138,128 @@ export default {
     },
     onDragEnter(e) {
       this.$emit('dragenter', this.index);
+    },
+    onDragIconTouchStart(e) {
+      // Dedicated handler for drag icon - always initiates drag
+      e.preventDefault();
+      e.stopPropagation();
+
+      const touch = e.touches[0];
+      this.touchStartX = touch.clientX;
+      this.touchStartY = touch.clientY;
+      this.isDragging = false;
+    },
+    onTouchStart(e) {
+      // Don't start drag if touching delete button
+      if (e.target.closest('.delete_icon_span')) {
+        return;
+      }
+
+      // Skip if already handled by drag icon
+      if (e.target.closest('.drag_icon_span')) {
+        return;
+      }
+
+      // Only allow drag from card background (not video content)
+      const isCardBackground = e.target.classList.contains('card');
+      if (!isCardBackground) {
+        return;
+      }
+
+      const touch = e.touches[0];
+      this.touchStartX = touch.clientX;
+      this.touchStartY = touch.clientY;
+      this.isDragging = false;
+    },
+    onTouchMove(e) {
+      if (!e.touches.length || this.touchStartX === 0) return;
+
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - this.touchStartX);
+      const deltaY = Math.abs(touch.clientY - this.touchStartY);
+
+      // Check if movement exceeds threshold to start dragging
+      if (!this.isDragging && (deltaX > this.touchMoveThreshold || deltaY > this.touchMoveThreshold)) {
+        this.isDragging = true;
+        const card = this.$refs[this.id];
+        if (card) {
+          card.classList.add("dragging");
+
+          // Create visual clone for drag feedback
+          const rect = card.getBoundingClientRect();
+          this.cardOffsetX = this.touchStartX - rect.left;
+          this.cardOffsetY = this.touchStartY - rect.top;
+
+          this.dragClone = card.cloneNode(true);
+          this.dragClone.id = this.id + '-clone';
+          this.dragClone.style.cssText = `
+            position: fixed !important;
+            width: ${rect.width}px !important;
+            height: ${rect.height}px !important;
+            left: ${touch.clientX - this.cardOffsetX}px !important;
+            top: ${touch.clientY - this.cardOffsetY}px !important;
+            opacity: 0.7 !important;
+            pointer-events: none !important;
+            z-index: 9999 !important;
+            transform: scale(1.05) !important;
+            transition: none !important;
+            margin: 0 !important;
+          `;
+          // Remove any attributes that might interfere
+          this.dragClone.removeAttribute('draggable');
+          this.dragClone.removeAttribute('data-v-inspector');
+
+          document.body.appendChild(this.dragClone);
+          console.log('Drag clone created and appended to body');
+        }
+        this.$emit('dragstart', this.index);
+      }
+
+      if (this.isDragging) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Update clone position
+        if (this.dragClone && this.dragClone.parentNode) {
+          this.dragClone.style.setProperty('left', (touch.clientX - this.cardOffsetX) + 'px', 'important');
+          this.dragClone.style.setProperty('top', (touch.clientY - this.cardOffsetY) + 'px', 'important');
+        }
+
+        // Find the element at the touch position
+        const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cardAtPoint = elementAtPoint?.closest('.card');
+
+        if (cardAtPoint) {
+          const cardId = cardAtPoint.id;
+          // Get the parent container and find all cards within it
+          const container = cardAtPoint.parentElement;
+          const allCards = Array.from(container.querySelectorAll('.card'));
+          const targetIndex = allCards.indexOf(cardAtPoint);
+
+          if (targetIndex !== -1 && cardId !== this.id) {
+            this.$emit('dragenter', targetIndex);
+          }
+        }
+      }
+    },
+    onTouchEnd(e) {
+      if (this.isDragging) {
+        const card = this.$refs[this.id];
+        if (card) {
+          card.classList.remove("dragging");
+        }
+
+        // Remove drag clone
+        if (this.dragClone && this.dragClone.parentNode) {
+          this.dragClone.parentNode.removeChild(this.dragClone);
+          this.dragClone = null;
+        }
+
+        this.$emit('dragend');
+        this.isDragging = false;
+      }
+      this.touchStartX = 0;
+      this.touchStartY = 0;
     }
   },
   watch: {

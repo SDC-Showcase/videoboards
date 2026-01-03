@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-xxl navbar-light bg-light mb-3">
       <div class="container-fluid d-flex align-items-end">
         <a class="navbar-brand app-logo" href="#">
-          <span class="logo-highlight">Videoboards</span><span class="logo-version">V2.30</span>
+          <span class="logo-highlight">Videoboards</span><span class="logo-version">V2.40</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav"

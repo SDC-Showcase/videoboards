@@ -3,6 +3,15 @@
 
 ## Updates
 
+### V2.40 - 2026-01-03
+**Mobile Touch Drag-and-Drop Support**
+- Full touch drag-and-drop functionality for mobile devices
+- Visual feedback with semi-transparent clone following finger during drag
+- Touch-action CSS prevents page scrolling during drag operations
+- Dedicated touch handlers for drag icon with proper event management
+- Improved z-index layering for delete and drag icons
+- Enhanced mobile user experience matching desktop drag-and-drop
+
 ### V2.30 - 2026-01-03
 **Enhanced Tab Navigation**
 - Smart tab ordering - most recently accessed tabs appear first in visible tab list
