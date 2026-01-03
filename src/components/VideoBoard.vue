@@ -10,6 +10,7 @@
         :id="card.id"
         :video-url="card.src"
         :index="idx"
+        :should-load="isActive"
         @delete="deleteCard"
         @dragstart="onDragStart(idx)"
         @dragend="onDragEnd"

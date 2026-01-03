@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-xxl navbar-light bg-light mb-3">
       <div class="container-fluid d-flex align-items-end">
         <a class="navbar-brand app-logo" href="#">
-          <span class="logo-highlight">Videoboards</span><span class="logo-version">V2.00</span>
+          <span class="logo-highlight">Videoboards</span><span class="logo-version">V2.10</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav"
@@ -126,6 +126,7 @@ import swal from 'sweetalert';
 import VideoBoard from './components/VideoBoard.vue';
 
 const TAB_ORDER_COOKIE = 'videowall_tab_order';
+const ACTIVE_TAB_KEY = 'videowall_active_tab';
 
 export default {
   name: 'App',
@@ -175,9 +176,15 @@ export default {
         }
       });
 
-      // if boards are loaded, set the current tab to the first one
+      // if boards are loaded, restore the previously active tab or set to the first one
       if (this.boards.length > 0) {
-        this.currentTab = this.boards[0].name;
+        const savedTab = localStorage.getItem(ACTIVE_TAB_KEY);
+        // Check if the saved tab still exists
+        if (savedTab && this.boards.some(board => board.name === savedTab)) {
+          this.currentTab = savedTab;
+        } else {
+          this.currentTab = this.boards[0].name;
+        }
       }
     },
 
@@ -224,10 +231,17 @@ export default {
         if (willDelete) {
           const index = this.boards.findIndex(board => board.name === this.currentTab);
           if (index !== -1) {
+            const deletedTabName = this.currentTab;
             this.boards.splice(index, 1);
-            localStorage.removeItem('videowall_' + this.currentTab);
+            localStorage.removeItem('videowall_' + deletedTabName);
             this.saveTabOrder();
             this.currentTab = this.boards[0]?.name || '';
+            // Update the saved active tab
+            if (this.currentTab) {
+              localStorage.setItem(ACTIVE_TAB_KEY, this.currentTab);
+            } else {
+              localStorage.removeItem(ACTIVE_TAB_KEY);
+            }
           }
         }
       });
@@ -235,6 +249,8 @@ export default {
 
     activateTab(name) {
       this.currentTab = name;
+      // Save the active tab to localStorage
+      localStorage.setItem(ACTIVE_TAB_KEY, name);
     },
 
     showAddBoardModal() {

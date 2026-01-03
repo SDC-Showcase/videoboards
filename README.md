@@ -2,7 +2,19 @@
 
 
 ## Updates
-02-07-25 - V2.00 - Now using localstorage instead of cookies.
+
+### V2.10 - 2026-01-03
+**Performance & Resource Optimization**
+- Implemented lazy loading for video thumbnails - only active tab loads iframes
+- Videos display as clickable YouTube thumbnails until loaded
+- Significant reduction in browser resource usage and memory consumption
+- Multi-tier thumbnail fallback system (maxresdefault → sddefault → hqdefault → mqdefault → default → 0.jpg)
+- Custom fallback UI for videos without available thumbnails
+- Active tab now persists across page reloads
+- Improved URL parsing to support various YouTube URL formats (embed, watch, short links)
+
+### V2.00 - 2025-02-07
+- Now using localstorage instead of cookies
 
 
 
@@ -13,6 +25,9 @@ VideoBoards is a web application for creating and managing video walls. It allow
 - Save and load different video wall configurations
 - Simple drag-and-drop interface
 - Responsive design for various screen sizes
+- Lazy loading thumbnails for optimal performance
+- Tab-based organization with persistent active tab state
+- Import/Export board configurations
 
 ## Getting Started
 

@@ -38,6 +38,54 @@ body {
   height: calc( var(--drag-height) - (var(--drag-padding)*2));
 }
 
+.video_thumbnail {
+  position: relative;
+  width: 100%;
+  height: calc( var(--drag-height) - (var(--drag-padding)*2));
+  cursor: pointer;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.thumbnail_image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.play_overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.video_thumbnail:hover .play_overlay {
+  opacity: 1;
+}
+
+.thumbnail_fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+.fallback_content {
+  text-align: center;
+  color: #fff;
+}
+
+.fallback_text {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
 
 @media (min-width: 800px) {
   .cards { grid-template-columns: repeat(1, 1fr); }
